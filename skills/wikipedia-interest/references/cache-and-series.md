@@ -1,0 +1,11 @@
+# Pageviews series and cache
+
+`fetch_pageviews.py` accepts only a fully resolved article selection. Dates use inclusive `YYYY-MM-DD` and cannot precede 2015-07-01 or extend into the future. For `monthly`, any day in a month selects that whole month; each point's `date` is its first day. For `daily`, each date selects one day. The response fixes `project`, `access`, `agent`, and `granularity` for every series.
+
+The default metric is `all-access/user/monthly`. Other accepted access values are `desktop`, `mobile-web`, and `mobile-app`; agents are `all-agents` and `spider`; `daily` is the other granularity. Changing any of these produces a different cache key. Do not compare or merge series with different definitions without an explicit explanation.
+
+Completed monthly data is fetched in calendar-year chunks. The current year's completed months form a separate reusable chunk; the current month is fetched separately and expires from cache after one hour. Daily data is fetched in calendar-month chunks; completed days in the current month are separated from today's incomplete day, whose cache expires after one hour. The SHA-256 cache key includes canonical project/title, metric parameters, and chunk date range. Each chunk has both an exact raw API response in `raw/` and a normalized copy in `normalized/`. A changed date range reuses chunks it already has. The output shows `cache.hits`, `cache.misses`, source URLs, and fetch times.
+
+Each point has `date`, `views`, `complete`, and `missing`. A missing API bucket is `views: null`, never zero. The current month or day has `complete: false`; Stage 4 trend calculation omits incomplete months. `quality_flags` includes `missing_points`, `incomplete_period`, and possible page-title or semantic-match warnings. `status: "partial"` indicates missing or incomplete points; the analyzer can read it but returns uncertainty when missing completed months affect its window. API failures return an error, with no invented series.
+
+Page title redirects are reported from the resolution step, and a title in an API response that differs from the resolved title is flagged. Historical page renames can still split view counts across titles: this endpoint does not automatically reconstruct a page's full rename history. Confirm a suspected rename before drawing a conclusion.

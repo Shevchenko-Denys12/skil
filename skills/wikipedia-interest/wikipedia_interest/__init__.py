@@ -1,0 +1,1 @@
+"""Wikipedia interest skill package."""

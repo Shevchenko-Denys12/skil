@@ -1,0 +1,5 @@
+# Runtime and PDF visual QA dependencies (Python 3.11+).
+reportlab==4.5.1
+pillow==12.3.0
+pypdfium2==5.13.0
+charset-normalizer==3.5.1

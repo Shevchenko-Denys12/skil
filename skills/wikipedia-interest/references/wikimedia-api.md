@@ -1,0 +1,7 @@
+# Wikimedia API implementation notes
+
+Stage 2 article resolution uses the [MediaWiki Action API search](https://www.mediawiki.org/wiki/API:Search) and [page properties](https://www.mediawiki.org/wiki/API:Properties) on each language edition. It requests canonical page information, redirects, disambiguation flags, and interlanguage links. Search hits without an exact verified article remain candidates; a missing interlanguage link is not treated as semantic equivalence.
+
+Use the official [per-article Pageviews endpoint](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html) for article views. The endpoint serves data from 2015-07-01 onward. URL-encode canonical article titles, and keep `project`, `access`, `agent`, `granularity`, and dates explicit in every request and result.
+
+The [access policy](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/documentation/access-policy.html) requires an identifying `User-Agent` with contact information; requests without it can be blocked. Wait for each request to finish before the next one. Both clients send sequential requests with timeouts; the Stage 3 Pageviews client retries 429 and transient server/network errors at most three times with backoff. The API currently returns `uk.wikipedia` in an item even when `uk.wikipedia.org` was requested in the URL; the fetcher accepts that equivalent form while keeping the requested project explicit in output.
